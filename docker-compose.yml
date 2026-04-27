@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mood_music_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: mood_music
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro
+      - ./migrations/001_api_auth.sql:/docker-entrypoint-initdb.d/02-api-auth.sql:ro
+
+  api:
+    build: .
+    container_name: mood_music_api
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/mood_music
+      DB_SSL: "false"
+      CORS_ORIGIN: "*"
+      JWT_SECRET: change-this-access-secret
+      JWT_REFRESH_SECRET: change-this-refresh-secret
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 30d
+      BCRYPT_SALT_ROUNDS: 10
+
+volumes:
+  postgres_data:
+
