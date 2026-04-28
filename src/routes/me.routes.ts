@@ -9,17 +9,17 @@ import { ApiError } from '../utils/api-error';
 import { buildPaginationMeta, paginationSchema } from '../utils/pagination';
 
 const router = Router();
-const uuidSchema = z.string().uuid();
+const uuidSchema = z.uuid();
 
 const streamQualitySchema = z.enum(['low', 'normal', 'high', 'lossless']);
 
 const profileUpdateSchema = z
   .object({
     displayName: z.string().trim().min(1).max(80).optional(),
-    avatarUrl: z.string().trim().url().optional(),
+    avatarUrl: z.url().optional(),
     bio: z.string().trim().max(300).optional(),
-    country: z.string().trim().length(2).optional(),
-    preferredLanguage: z.string().trim().length(2).optional(),
+    country: z.string().trim().regex(/^[A-Za-z]{2}$/).optional(),
+    preferredLanguage: z.string().trim().regex(/^[A-Za-z]{2}$/).optional(),
     dateOfBirth: z.string().date().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, 'Debes enviar datos para actualizar');
@@ -39,7 +39,7 @@ const preferencesSchema = z
 
 const historyBodySchema = z.object({
   songId: uuidSchema,
-  durationS: z.number().min(0),
+  durationS: z.number().int().min(0),
   completed: z.boolean().default(false),
   sourceType: z.string().trim().max(40).optional(),
   moodId: uuidSchema.optional(),
@@ -78,7 +78,7 @@ const downloadUpdateSchema = z
 
 const playerStateSchema = z.object({
   currentSongId: uuidSchema.nullish(),
-  positionS: z.number().min(0),
+  positionS: z.number().int().min(0),
   repeat: z.enum(['none', 'one', 'all']),
   shuffle: z.boolean(),
   volume: z.number().min(0).max(1),

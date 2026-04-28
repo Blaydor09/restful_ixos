@@ -8,7 +8,7 @@ import { buildPaginationMeta, paginationSchema } from '../utils/pagination';
 import { ApiError } from '../utils/api-error';
 
 const router = Router();
-const uuidSchema = z.string().uuid();
+const uuidSchema = z.uuid();
 
 const songsQuerySchema = paginationSchema.extend({
   search: z.string().trim().min(1).optional(),
@@ -21,7 +21,7 @@ const songsQuerySchema = paginationSchema.extend({
 
 const artistsQuerySchema = paginationSchema.extend({
   search: z.string().trim().min(1).optional(),
-  country: z.string().trim().length(2).optional(),
+  country: z.string().trim().regex(/^[A-Za-z]{2}$/).optional(),
   sort: z.enum(['popular', 'name', 'newest']).default('popular'),
 });
 
