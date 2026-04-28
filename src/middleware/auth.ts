@@ -42,5 +42,6 @@ function createAuthMiddleware(required: boolean) {
 }
 
 export const authenticate = createAuthMiddleware(true);
+export const requireAuth = authenticate;
 export const optionalAuthenticate = createAuthMiddleware(false);
 

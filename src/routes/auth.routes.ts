@@ -81,6 +81,7 @@ router.post(
             id,
             username,
             email,
+            password_hash,
             COALESCE(display_name, username) AS "displayName",
             avatar_url AS "avatarUrl",
             created_at AS "createdAt"
@@ -94,34 +95,34 @@ router.post(
         throw new ApiError(500, 'No se pudo crear el usuario');
       }
 
-      await client.query(
-        `
-          INSERT INTO user_preferences (user_id)
-          VALUES ($1)
-          ON CONFLICT (user_id) DO NOTHING
-        `,
-        [user.id],
-      );
+      // await client.query(
+      //   `
+      //     INSERT INTO user_preferences (user_id)
+      //     VALUES ($1)
+      //     ON CONFLICT (user_id) DO NOTHING
+      //   `,
+      //   [user.id],
+      // );
 
-      const freePlan = await client.query<{ id: string }>(
-        `
-          SELECT id
-          FROM subscription_plans
-          WHERE price_usd = 0 AND is_active = TRUE
-          ORDER BY created_at ASC
-          LIMIT 1
-        `,
-      );
+      // const freePlan = await client.query<{ id: string }>(
+      //   `
+      //     SELECT id
+      //     FROM subscription_plans
+      //     WHERE price_usd = 0 AND is_active = TRUE
+      //     ORDER BY created_at ASC
+      //     LIMIT 1
+      //   `,
+      // );
 
-      if (freePlan.rows[0]) {
-        await client.query(
-          `
-            INSERT INTO user_subscriptions (user_id, plan_id)
-            VALUES ($1, $2)
-          `,
-          [user.id, freePlan.rows[0].id],
-        );
-      }
+      // if (freePlan.rows[0]) {
+      //   await client.query(
+      //     `
+      //       INSERT INTO user_subscriptions (user_id, plan_id)
+      //       VALUES ($1, $2)
+      //     `,
+      //     [user.id, freePlan.rows[0].id],
+      //   );
+      // }
 
       const authUser = {
         id: user.id,
@@ -129,21 +130,19 @@ router.post(
         username: user.username,
       };
 
-      const accessToken = signAccessToken(authUser);
-      const refreshToken = signRefreshToken(authUser);
+      // const accessToken = signAccessToken(authUser);
+      // const refreshToken = signRefreshToken(authUser);
 
-      await storeRefreshToken(
-        client,
-        user.id,
-        refreshToken,
-        request.get('user-agent'),
-        request.ip,
-      );
+      // await storeRefreshToken(
+      //   client,
+      //   user.id,
+      //   refreshToken,
+      //   request.get('user-agent'),
+      //   request.ip,
+      // );
 
       return {
-        user,
-        accessToken,
-        refreshToken,
+        user
       };
     });
 
@@ -156,6 +155,7 @@ router.post(
   asyncHandler(async (request, response) => {
     const payload = loginSchema.parse(request.body);
 
+    //identificador es correo o usuario
     const result = await withTransaction(async (client) => {
       const userResult = await client.query<
         BasicUser & {
