@@ -28,13 +28,13 @@ export class MoodController {
   });
 
   static getById = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const mood = await moodService.getById(id);
     res.json(mood);
   });
 
   static getSongs = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const { limit, offset } = pagination(req);
     const songs = await moodService.getSongsByMood(id, limit, offset);
 
@@ -51,14 +51,14 @@ export class MoodController {
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const data = updateMoodSchema.parse(req.body);
     const mood = await moodService.update(id, data);
     res.json(mood);
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     await moodService.delete(id);
     res.status(204).send();
   });

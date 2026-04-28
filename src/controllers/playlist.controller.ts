@@ -7,21 +7,21 @@ import { pagination } from '../utils/pagination';
 const createPlaylistSchema = z.object({
   name: z.string().trim().min(1).max(255),
   description: z.string().trim().optional(),
-  coverUrl: z.string().url().optional(),
+  coverUrl: z.url().optional(),
   visibility: z.enum(['private', 'public']).optional(),
-  moodId: z.string().uuid().optional(),
+  moodId: z.uuid().optional(),
 });
 
 const updatePlaylistSchema = z.object({
   name: z.string().trim().min(1).max(255).optional(),
   description: z.string().trim().optional(),
-  coverUrl: z.string().url().optional(),
+  coverUrl: z.url().optional(),
   visibility: z.enum(['private', 'public']).optional(),
-  moodId: z.string().uuid().optional(),
+  moodId: z.uuid().optional(),
 });
 
 const addSongSchema = z.object({
-  songId: z.string().uuid(),
+  songId: z.uuid(),
 });
 
 export class PlaylistController {
@@ -36,7 +36,7 @@ export class PlaylistController {
   });
 
   static getById = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const playlist = await playlistService.getByIdWithSongs(id);
     res.json(playlist);
   });
@@ -68,7 +68,7 @@ export class PlaylistController {
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const userId = req.user?.id;
 
     const playlist = await playlistService.getById(id);
@@ -82,7 +82,7 @@ export class PlaylistController {
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const userId = req.user?.id;
 
     const playlist = await playlistService.getById(id);
@@ -95,7 +95,7 @@ export class PlaylistController {
   });
 
   static addSong = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const userId = req.user?.id;
 
     const playlist = await playlistService.getById(id);
@@ -109,7 +109,8 @@ export class PlaylistController {
   });
 
   static removeSong = asyncHandler(async (req: Request, res: Response) => {
-    const { id, songId } = req.params;
+    const id = z.uuid().parse(req.params.id);
+    const songId = z.uuid().parse(req.params.songId);
     const userId = req.user?.id;
 
     const playlist = await playlistService.getById(id);
@@ -122,8 +123,8 @@ export class PlaylistController {
   });
 
   static reorderSong = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { songId, position } = z.object({ songId: z.string().uuid(), position: z.number().int().positive() }).parse(req.body);
+    const id = z.uuid().parse(req.params.id);
+    const { songId, position } = z.object({ songId: z.uuid(), position: z.number().int().positive() }).parse(req.body);
     const userId = req.user?.id;
 
     const playlist = await playlistService.getById(id);

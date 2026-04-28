@@ -5,7 +5,7 @@ import { asyncHandler } from '../utils/async-handler';
 import { pagination } from '../utils/pagination';
 
 const addLikedSongSchema = z.object({
-  songId: z.string().uuid(),
+  songId: z.uuid(),
 });
 
 export class LikedSongController {
@@ -31,7 +31,7 @@ export class LikedSongController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { songId } = req.params;
+    const songId = z.uuid().parse(req.params.songId);
     const liked = await likedSongService.isLiked(userId, songId);
 
     res.json({ liked });
@@ -58,7 +58,7 @@ export class LikedSongController {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { songId } = req.params;
+    const songId = z.uuid().parse(req.params.songId);
     await likedSongService.removeLikedSong(userId, songId);
     res.status(204).send();
   });

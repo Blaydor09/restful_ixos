@@ -6,12 +6,12 @@ import { pagination } from '../utils/pagination';
 
 const createArtistSchema = z.object({
   name: z.string().trim().min(1).max(255),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.url().optional(),
 });
 
 const updateArtistSchema = z.object({
   name: z.string().trim().min(1).max(255).optional(),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.url().optional(),
 });
 
 export class ArtistController {
@@ -27,7 +27,7 @@ export class ArtistController {
   });
 
   static getById = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const artist = await artistService.getById(id);
     res.json(artist);
   });
@@ -39,14 +39,14 @@ export class ArtistController {
   });
 
   static update = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const data = updateArtistSchema.parse(req.body);
     const artist = await artistService.update(id, data);
     res.json(artist);
   });
 
   static delete = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     await artistService.delete(id);
     res.status(204).send();
   });

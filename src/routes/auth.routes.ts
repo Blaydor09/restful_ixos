@@ -18,7 +18,7 @@ const router = Router();
 
 const registerSchema = z.object({
   username: z.string().trim().min(3).max(40),
-  email: z.string().trim().email(),
+  email: z.email(),
   password: z.string().min(8).max(100),
   displayName: z.string().trim().min(1).max(80).optional(),
 });

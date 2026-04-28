@@ -5,8 +5,8 @@ import { asyncHandler } from '../utils/async-handler';
 import { pagination } from '../utils/pagination';
 
 const createListeningHistorySchema = z.object({
-  songId: z.string().uuid(),
-  moodId: z.string().uuid().optional(),
+  songId: z.uuid(),
+  moodId: z.uuid().optional(),
   durationS: z.number().positive(),
   completed: z.boolean().optional(),
 });

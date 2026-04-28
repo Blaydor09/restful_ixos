@@ -5,7 +5,7 @@ import { asyncHandler } from '../utils/async-handler';
 import { pagination } from '../utils/pagination';
 
 const createDownloadSchema = z.object({
-  songId: z.string().uuid(),
+  songId: z.uuid(),
 });
 
 const updateDownloadSchema = z.object({
@@ -31,7 +31,7 @@ export class DownloadController {
   });
 
   static getDownloadById = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const download = await downloadService.getDownloadById(id);
 
     // Verify ownership
@@ -59,7 +59,7 @@ export class DownloadController {
   });
 
   static updateDownload = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const userId = req.user?.id;
 
     const download = await downloadService.getDownloadById(id);
@@ -73,7 +73,7 @@ export class DownloadController {
   });
 
   static deleteDownload = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const id = z.uuid().parse(req.params.id);
     const userId = req.user?.id;
 
     const download = await downloadService.getDownloadById(id);
